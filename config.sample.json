@@ -12,6 +12,7 @@
             "manufacturer": "manufacturer",
             "model": "model",
             "serialNumber": "serialNumber",
+            "deviceType":"1",
             "mqttUrl": "mqtt://localhost",
             "mqttUser": "mqtt",
             "mqttPass": "mqtt",

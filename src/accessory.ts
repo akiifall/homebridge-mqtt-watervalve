@@ -41,6 +41,7 @@ class WaterValue implements AccessoryPlugin {
   private manufacturer: string;
   private model: string;
   private serialNumber: string;
+  private deviceType: string;
   private topicStatus: string;
   private topicCommand: string;
   private onCommand: string;
@@ -58,6 +59,7 @@ class WaterValue implements AccessoryPlugin {
     this.manufacturer = config.manufacturer;
     this.model = config.model;
     this.serialNumber = config.serialNumber;
+    this.deviceType = config.deviceType;
     this.mqttUrl = config.mqttUrl;
     this.mqttUser = config.mqttUser;
     this.mqttPass = config.mqttPass;
@@ -79,7 +81,9 @@ class WaterValue implements AccessoryPlugin {
     this.deviceService.getCharacteristic(this.api.hap.Characteristic.On)
       .on(CharacteristicEventTypes.GET, this.getOnHandler.bind(this))
       .on(CharacteristicEventTypes.SET, this.setOnHandler.bind(this));
-    
+
+    this.deviceService.setCharacteristic(this.api.hap.Characteristic.ValveType, this.deviceType);
+  
     this.mqttOptions = {
       keepalive: 10,
       clientId: this.deviceName + "_" + (Math.random() * 10000).toFixed(0),

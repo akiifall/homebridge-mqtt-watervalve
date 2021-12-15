@@ -1,6 +1,6 @@
 {
   "name": "homebridge-mqtt-watervalve",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "watervalve accessory plugin for homebridge written in Typescript",
   "main": "dist/accessory.js",
   "scripts": {
