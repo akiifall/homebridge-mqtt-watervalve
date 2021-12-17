@@ -49,8 +49,6 @@ class WaterValue implements AccessoryPlugin {
   private onValue: string;
   private offValue: string;
 
-  private deviceOnOff = false;
-
   constructor(log: Logging, config: AccessoryConfig, api: API) {
     this.log = log;
     this.api = api;
@@ -78,9 +76,12 @@ class WaterValue implements AccessoryPlugin {
       // Service Type
     this.deviceService = new hap.Service.Valve(this.deviceName);
 
-    this.deviceService.getCharacteristic(this.api.hap.Characteristic.On)
-      .on(CharacteristicEventTypes.GET, this.getOnHandler.bind(this))
-      .on(CharacteristicEventTypes.SET, this.setOnHandler.bind(this));
+    this.deviceService.getCharacteristic(this.api.hap.Characteristic.Active)
+      .on(CharacteristicEventTypes.GET, this.getActiveHandler.bind(this))
+      .on(CharacteristicEventTypes.SET, this.setActiveHandler.bind(this));
+
+    this.deviceService.getCharacteristic(this.api.hap.Characteristic.InUse)
+      .on(CharacteristicEventTypes.GET, this.getInUseHandler.bind(this));
 
     this.deviceService.setCharacteristic(this.api.hap.Characteristic.ValveType, this.deviceType);
   
@@ -111,47 +112,43 @@ class WaterValue implements AccessoryPlugin {
     log.info(this.deviceName + " plugin loaded.");
   }
 
-	getOnHandler (callback: any) {
-		callback(null, this.deviceOnOff);
+
+	getActiveHandler (callback: any) {
+    callback(null, this.deviceService.getCharacteristic(this.api.hap.Characteristic.Active).value);  
 	}
 
-	setOnHandler (value: CharacteristicValue, callback: any) {
-    if (this.deviceOnOff != value) {
-      let jsonCommand: string;
-
-      if (value == true) {
-        jsonCommand = this.onCommand;
-      }
-      else {
-        jsonCommand = this.offCommand;
-      }
-      this.deviceOnOff = value as boolean;
-      this.mqttClient.publish(this.topicCommand,jsonCommand);
-      callback(null);  
+	setActiveHandler (value: CharacteristicValue, callback: any) {
+    let jsonCommand: string
+    
+    if (value == 1) {
+      jsonCommand = this.onCommand;
     }
+    else {
+      jsonCommand = this.offCommand;
+    }
+
+    this.mqttClient.publish(this.topicCommand,jsonCommand);
+    callback(null);  
 	}
+
+  getInUseHandler (callback: any) {
+    callback(null, this.deviceService.getCharacteristic(this.api.hap.Characteristic.InUse).value);  
+  }
 
   setMqttEvent() {
     this.mqttClient.on("message", (topic: string, message: Buffer) => {
       if (topic === this.topicStatus) {
         let jsonData = JSON.parse(message.toString());
         let deviceStatus = jsonData.DeviceStatus;
-        let setValue = false;
 
-        if (deviceStatus == this.onValue && this.deviceOnOff == false) {
-            this.deviceOnOff = true;
-            setValue = true;
+
+        if (deviceStatus == this.onValue) {
+          this.deviceService.updateCharacteristic(this.api.hap.Characteristic.Active, 1);
+          this.deviceService.updateCharacteristic(this.api.hap.Characteristic.InUse, 1);
         }
-        
-        if (deviceStatus == this.offValue && this.deviceOnOff == true) {
-            this.deviceOnOff = false;
-            setValue = true;
-        }  
-
-        if (setValue == true) {
-          this.deviceService.updateCharacteristic(this.api.hap.Characteristic.On, this.deviceOnOff);
-          setValue = false;
-          this.log.info("Set status to : " + this.deviceOnOff);
+        else if (deviceStatus == this.offValue) {
+          this.deviceService.updateCharacteristic(this.api.hap.Characteristic.Active, 0);
+          this.deviceService.updateCharacteristic(this.api.hap.Characteristic.InUse, 0);
         }
       }
     });
