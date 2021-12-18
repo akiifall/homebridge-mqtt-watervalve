@@ -116,8 +116,6 @@ class WaterValue implements AccessoryPlugin {
 
 
 	getActiveHandler (callback: any) {
-    let jsonCommand: string = this.statusCommand;
-    this.mqttClient.publish(this.topicCommand,jsonCommand);
     callback(null, this.deviceService.getCharacteristic(this.api.hap.Characteristic.Active).value);  
 	}
 
