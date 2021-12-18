@@ -46,6 +46,7 @@ class WaterValue implements AccessoryPlugin {
   private topicCommand: string;
   private onCommand: string;
   private offCommand: string;
+  private statusCommand: string;
   private onValue: string;
   private offValue: string;
 
@@ -65,6 +66,7 @@ class WaterValue implements AccessoryPlugin {
     this.topicCommand = config.topicCommand;
     this.onCommand = config.onCommand;
     this.offCommand = config.offCommand;
+    this.statusCommand = config.statusCommand;
     this.onValue = config.onValue;
     this.offValue = config.offValue;
     
@@ -114,6 +116,8 @@ class WaterValue implements AccessoryPlugin {
 
 
 	getActiveHandler (callback: any) {
+    let jsonCommand: string = this.statusCommand;
+    this.mqttClient.publish(this.topicCommand,jsonCommand);
     callback(null, this.deviceService.getCharacteristic(this.api.hap.Characteristic.Active).value);  
 	}
 

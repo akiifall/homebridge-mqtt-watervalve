@@ -1,4 +1,4 @@
-- personal use only. sorry :)
+- Water Valve Accessory with Local MQTT Server
 
 - add new property
   - deviceType 
