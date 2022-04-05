@@ -7,3 +7,5 @@
     - 2 : ”Shower head”
     - 3 : ”Water faucet”
     - 4-255 : ”Reserved”
+ 
+ - topicStatus message format : {"DeviceStatus":"ON"} (or OFF)
