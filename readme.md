@@ -12,6 +12,5 @@
 
 - Version History
   - v. 1.0.7
-    - CVE-2021-44906
-      - Prototype Pollution in minimist
+    - CVE-2021-44906 : Prototype Pollution in minimist
 
